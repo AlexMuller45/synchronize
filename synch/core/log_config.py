@@ -20,6 +20,7 @@ class MyLogger:
         )
         self.logger.add(
             get_log_filename(),
+            retention="15 days",
             format="{extra[app_name]} {time:YYYY-MM-DD HH:mm:ss.SSS} {level} {message}",
             level="DEBUG",
         )
