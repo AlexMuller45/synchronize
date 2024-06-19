@@ -13,12 +13,12 @@ class MyLogger:
         self.logger = loguru_logger.bind(app_name="synchronizer")
         self.logger.add(
             sys.stderr,
-            format="{extra[app_name]} {time:YYYY-MM-DD HH:mm:ss.SSS} {level: <8} {message}",
+            format="{extra[app_name]} {time:YYYY-MM-DD HH:mm:ss.SSS} {level} {message}",
             level="DEBUG",
         )
         self.logger.add(
             get_log_filename(),
-            format="{extra[app_name]} {time:YYYY-MM-DD HH:mm:ss.SSS} {level: <8} {message}",
+            format="{extra[app_name]} {time:YYYY-MM-DD HH:mm:ss.SSS} {level} {message}",
             level="DEBUG",
         )
 
