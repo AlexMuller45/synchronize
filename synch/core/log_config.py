@@ -10,7 +10,9 @@ BASE_DIR = Path(__file__).parent.parent
 
 class MyLogger:
     def __init__(self):
-        self.logger = loguru_logger.bind(app_name="synchronizer")
+        self.logger = loguru_logger
+        self.logger.remove()
+
         self.logger.add(
             sys.stderr,
             format="{extra[app_name]} {time:YYYY-MM-DD HH:mm:ss.SSS} {level} {message}",
@@ -21,6 +23,8 @@ class MyLogger:
             format="{extra[app_name]} {time:YYYY-MM-DD HH:mm:ss.SSS} {level} {message}",
             level="DEBUG",
         )
+
+        self.logger = self.logger.bind(app_name="synchronizer")
 
     def debug(self, message):
         self.logger.debug(message)
