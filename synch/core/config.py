@@ -12,4 +12,9 @@ config = OrderedDict(
     (k.lower(), v) for k, v in dotenv_values(".env", encoding="utf-8").items()
 )
 
-print(config)
+config["yandex_disk_fields"] = (
+    "_embedded.items.type,"
+    "_embedded.items.name,"
+    "_embedded.items.modified,"
+    "_embedded.items.size"
+)
