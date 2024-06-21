@@ -1,4 +1,4 @@
-from requests import HTTPError, Timeout, RequestException
+from requests.exceptions import HTTPError, Timeout, RequestException
 
 from synch.core.log_config import logger
 
@@ -15,6 +15,6 @@ def handle_errors(func):
             logger.error(f"Ошибка запроса: {req_err}")
         except Exception as err:
             logger.error(f"Ошибка: {err}")
-        return None
+        return {"status": "Error"}
 
     return wrapper
