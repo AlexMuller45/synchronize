@@ -1,9 +1,6 @@
 from core.config import config
 from core.log_config import logger
-
-
-def main() -> None:
-    return print("hi")
+from utils.synchronize import Synchronizer
 
 
 if __name__ == "__main__":
@@ -13,4 +10,9 @@ if __name__ == "__main__":
         f"{config.get("path_local_folder", "директория не определена")}"
     )
 
-    main()
+    sync_files = Synchronizer()
+
+    try:
+        sync_files.start_sync()
+    except KeyboardInterrupt:
+        sync_files.stop_sync()

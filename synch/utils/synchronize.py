@@ -12,7 +12,7 @@ class Synchronizer:
         self.remote_path: str = str(config.get("path_cloud_folder", ""))
         self.cloud_token: str = str(config.get("yandex_oauth_token", ""))
         self.delay: int = int(str(config.get("synch_delay", "30")))
-
+        self.running: bool = False
         self.cloud_drive = YandexDiskClient(
             local_folder=self.local_path,
             remote_folder=self.remote_path,
@@ -87,6 +87,16 @@ class Synchronizer:
 
         logger.info("Синхронизация завершена")
 
-    def run(self):
-        while True:
-            self.sync_files()
+    def stop_sync(self):
+        logger.info("Синхронизация остановлена")
+        self.running = False
+
+    def start_sync(self):
+        self.running = True
+        try:
+            while self.running:
+                self.sync_files()
+                time.sleep(self.delay)
+
+        except KeyboardInterrupt:
+            self.stop_sync()
