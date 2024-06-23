@@ -32,10 +32,10 @@ class Synchronizer:
 
         return [
             {
-                "type": "file",
                 "name": item,
-                "path": os.path.join(self.local_path, item),
                 "modified": self.__get_mtime_iso8601(item),
+                "path": os.path.join(self.local_path, item),
+                "type": "file",
             }
             for item in list_dir
             if os.path.isfile(item)
@@ -45,4 +45,3 @@ class Synchronizer:
 
         local_files: list[dict] = self.__get_local_files_with_mtime()
         remote_files: list[dict] = self.cloud_drive.get_info()
-        
