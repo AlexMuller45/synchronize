@@ -3,6 +3,7 @@ import time
 
 from synch.cloud_storage import YandexDiskClient
 from synch.core.config import config
+from synch.core.log_config import logger
 
 
 class Synchronizer:
@@ -17,7 +18,7 @@ class Synchronizer:
             token=self.cloud_token,
         )
 
-    def get_mtime_iso8601(self, file_name: str) -> str:
+    def __get_mtime_iso8601(self, file_name: str) -> str:
         # 2014-04-22T10:32:49+04:00
 
         full_path = os.path.join(self.local_path, file_name)
@@ -25,14 +26,23 @@ class Synchronizer:
 
         return time.strftime("%Y-%m-%dT%H:%M:%S%z", mtime_struct)
 
-    def get_local_files_with_mtime(self) -> list[tuple[str, str]]:
+    def __get_local_files_with_mtime(self) -> list[dict]:
+
         list_dir = os.listdir(self.local_path)
 
         return [
-            (item, self.get_mtime_iso8601(item))
+            {
+                "type": "file",
+                "name": item,
+                "path": os.path.join(self.local_path, item),
+                "modified": self.__get_mtime_iso8601(item),
+            }
             for item in list_dir
             if os.path.isfile(item)
         ]
 
-    def sync_folders(self):
-        pass
+    def sync_files(self):
+
+        local_files: list[dict] = self.__get_local_files_with_mtime()
+        remote_files: list[dict] = self.cloud_drive.get_info()
+        

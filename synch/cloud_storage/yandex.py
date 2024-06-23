@@ -16,7 +16,7 @@ class YandexApiUrl:
     upload: str = "/upload"
     fields: str = (
         "_embedded.items.type,_embedded.items.name,"
-        "_embedded.items.modified,_embedded.items.size"
+        "_embedded.items.path,_embedded.items.modified"
     )
     permanently: str = "false"
 
@@ -131,14 +131,27 @@ class YandexDiskClient:
         logger.info(f"Файл {file_name} удален")
         return {"status": "Success"}
 
+    @staticmethod
+    def remove_dir(items: list[dict]) -> list[dict]:
+        return [{**item} for item in items if item["type"] == "file"]
+
     @handle_errors
-    def get_info(self) -> dict[str, list[dict]] | None:
+    def get_info(self) -> list[dict]:
+        # returns list[dict]:
+        # [
+        #     "name": "bar-2.sdf"
+        #     "modified": "2014-04-22T10:32:49+04:00"
+        #     "path": "disk:/foo/bar-2.sdf"
+        #     "type": "file"
+        # ]
+
         response = requests.get(
             self.api.get_info_url(self.remote_path),
             headers=self.headers,
             timeout=self.api.timeout,
         )
-
         response.raise_for_status()
 
-        return response.json()["_embedded"]
+        data: list[dict] = response.json()["_embedded"]["items"]
+
+        return self.remove_dir(data)
