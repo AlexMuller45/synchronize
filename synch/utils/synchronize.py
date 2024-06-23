@@ -1,3 +1,5 @@
 import os
 
-from synch.cloud_storage.handle_errors import YandexDisk
+from synch.cloud_storage import YandexDiskClient
+
+

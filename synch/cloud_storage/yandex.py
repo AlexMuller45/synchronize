@@ -49,7 +49,7 @@ class YandexApiUrl:
         )
 
 
-class YandexDisk:
+class YandexDiskClient:
     api: YandexApiUrl = YandexApiUrl()
 
     def __init__(self, local_folder: str, remote_folder: str, token: str):
