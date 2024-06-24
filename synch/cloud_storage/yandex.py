@@ -4,7 +4,7 @@ from requests import RequestException
 from urllib.parse import quote
 
 from synch.core.log_config import logger
-from handle_errors import handle_errors
+from synch.cloud_storage.handle_errors import handle_errors
 
 
 class YandexApiUrl:
