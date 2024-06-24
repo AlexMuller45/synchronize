@@ -6,7 +6,7 @@ from utils.synchronize import Synchronizer
 if __name__ == "__main__":
     logger.info("Начало работы программы синхронизации!!!")
     logger.info(
-        "Запуск синхронизации директории"
+        "Запуск синхронизации директории "
         f"{config.get("path_local_folder", "директория не определена")}"
     )
 

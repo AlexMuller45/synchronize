@@ -1,9 +1,10 @@
+from datetime import datetime
 import os
 import time
 
-from synch.cloud_storage import YandexDiskClient
-from synch.core.config import config
-from synch.core.log_config import logger
+from cloud_storage import YandexDiskClient
+from core.config import config
+from core.log_config import logger
 
 
 class Synchronizer:
@@ -18,6 +19,7 @@ class Synchronizer:
             remote_folder=self.remote_path,
             token=self.cloud_token,
         )
+        logger.info(f"remote_path: {self.remote_path}")
 
     def __get_mtime_iso8601(self, file_name: str) -> str:
         # 2014-04-22T10:32:49+04:00
@@ -28,9 +30,7 @@ class Synchronizer:
         return time.strftime("%Y-%m-%dT%H:%M:%S%z", mtime_struct)
 
     def __get_local_files_with_mtime(self) -> list[dict]:
-
         list_dir = os.listdir(self.local_path)
-
         return [
             {
                 "name": item,
@@ -39,7 +39,7 @@ class Synchronizer:
                 "type": "file",
             }
             for item in list_dir
-            if os.path.isfile(item)
+            if os.path.isfile(os.path.join(self.local_path, item))
         ]
 
     @staticmethod
@@ -51,12 +51,18 @@ class Synchronizer:
 
     @staticmethod
     def __remove_remote_file_by_name(name, remote_files) -> list[dict]:
-        return [item for item in remote_files if item.get("name") != name]
+        return [{**item} for item in remote_files if item.get("name") != name]
 
     def sync_files(self):
 
         local_files: list[dict] = self.__get_local_files_with_mtime()
+        logger.info(
+            "Локальные файлы для синхронизации: "
+            f"{[item["name"] for item in local_files]}"
+        )
+
         remote_files: list[dict] = self.cloud_drive.get_info()
+        logger.info(f"Файлы в облаке: {[item["name"] for item in remote_files]}")
 
         for file in local_files:
             remote_file: dict | None = self.__find_name_in_remote_files(
@@ -66,12 +72,16 @@ class Synchronizer:
             file_name: str = file.get("name") or ""
 
             if remote_file:
-                if file.get("modified") != remote_file.get("modified"):
+                mtime_local_file = datetime.fromisoformat(file["modified"])
+                mtime_remote_file = datetime.fromisoformat(remote_file["modified"])
+
+                if mtime_local_file > mtime_remote_file:
                     logger.info(f"Обновление файла {file_name} в облаке")
                     self.cloud_drive.reload(file_name)
 
                 remote_files = self.__remove_remote_file_by_name(
-                    file_name, remote_files
+                    file_name,
+                    remote_files,
                 )
 
             else:

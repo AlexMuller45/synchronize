@@ -3,8 +3,8 @@ import requests
 from requests import RequestException
 from urllib.parse import quote
 
-from synch.core.log_config import logger
-from synch.cloud_storage.handle_errors import handle_errors
+from core.log_config import logger
+from cloud_storage.handle_errors import handle_errors
 
 
 class YandexApiUrl:
@@ -63,8 +63,8 @@ class YandexDiskClient:
         }
 
     @handle_errors
-    def request_upload_url(self, file_path: str, upload: bool = False) -> str | None:
-
+    def request_upload_url(self, file_name: str, upload: bool = False) -> str | None:
+        file_path = os.path.join(self.remote_path, file_name)
         response = requests.get(
             self.api.get_upload_url(file_path, upload),
             headers=self.headers,
@@ -72,6 +72,7 @@ class YandexDiskClient:
         )
 
         if response.status_code == 200:
+            logger.info(f"URL для загрузки успешно получен")
             return response.json()["href"]
 
         if response.status_code == 409:
@@ -83,29 +84,34 @@ class YandexDiskClient:
         response.raise_for_status()
 
     @handle_errors
-    def upload(self, file_path: str) -> dict[str, str]:
-        upload_url = self.request_upload_url(file_path=file_path)
+    def upload(self, file_name: str) -> dict[str, str]:
+
+        upload_url = self.request_upload_url(file_name=file_name)
 
         if not upload_url:
             raise RequestException("URL для загрузки не получен")
+
+        file_path = os.path.join(self.local_path, file_name)
 
         with open(file_path, "rb") as file:
             response = requests.put(upload_url, data=file)
 
         response.raise_for_status()
 
-        logger.info(f"Файл {file_path} загружен успешно")
+        logger.info(f"Файл {file_name} загружен успешно")
         return {"status": "Success"}
 
     @handle_errors
-    def reload(self, file_path: str) -> dict[str, str]:
+    def reload(self, file_name: str) -> dict[str, str]:
         reload_url = self.request_upload_url(
-            file_path=file_path,
+            file_name=file_name,
             upload=True,
         )
 
         if not reload_url:
             raise RequestException("URL для загрузки не получен")
+
+        file_path = os.path.join(self.local_path, file_name)
 
         with open(file_path, "rb") as file:
             response = requests.put(
@@ -114,7 +120,7 @@ class YandexDiskClient:
             )
         response.raise_for_status()
 
-        logger.info(f"Файл {file_path} заменен успешно")
+        logger.info(f"Файл {file_name} заменен успешно")
         return {"status": "Success"}
 
     @handle_errors
@@ -153,5 +159,6 @@ class YandexDiskClient:
         response.raise_for_status()
 
         data: list[dict] = response.json()["_embedded"]["items"]
+        logger.info("Данные о файлах из облака получены")
 
         return self.remove_dir(data)

@@ -1,6 +1,6 @@
 from requests.exceptions import HTTPError, Timeout, RequestException
 
-from synch.core.log_config import logger
+from core.log_config import logger
 
 
 def handle_errors(func):

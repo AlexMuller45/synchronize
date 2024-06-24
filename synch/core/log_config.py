@@ -4,7 +4,7 @@ import sys
 from loguru import logger as loguru_logger
 from pathlib import Path
 
-from synch.core.config import config
+from core.config import config
 
 
 BASE_DIR = Path(__file__).parent.parent.parent
