@@ -103,11 +103,16 @@ class Synchronizer:
 
     def start_sync(self):
         self.running = True
+        counter = 0
         try:
             while self.running:
+                counter += 1
                 logger.info("Синхронизация запущена")
                 self.sync_files()
-                time.sleep(self.delay)
+
+                for remaining in range(self.delay, 0, -1):
+                    print(f"....ожидание {remaining} сек.", end="\r")
+                    time.sleep(1)
 
         except KeyboardInterrupt:
             self.stop_sync()
