@@ -11,6 +11,16 @@ BASE_DIR = Path(__file__).parent.parent.parent
 
 
 class MyLogger:
+    """
+    Класс MyLogger представляет собой логгер, который использует библиотеку loguru.
+    В методе __init__ инициализируются переменные, такие как logger и extra.
+    Метод debug записывает сообщение уровня DEBUG в лог.
+    Метод info записывает сообщение уровня INFO в лог.
+    Метод warning записывает сообщение уровня WARNING в лог.
+    Метод error записывает сообщение уровня ERROR в лог.
+    Метод critical записывает сообщение уровня CRITICAL в лог.
+    """
+
     def __init__(self):
         self.logger = loguru_logger
         self.logger.remove()

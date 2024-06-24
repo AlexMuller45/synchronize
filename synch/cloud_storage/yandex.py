@@ -8,6 +8,19 @@ from cloud_storage.handle_errors import handle_errors
 
 
 class YandexApiUrl:
+    """
+    Класс YandexApiUrl представляет собой класс,
+        который содержит URL-адреса для различных операций с Yandex.Disk API.
+    В методе __init__ инициализируются переменные,
+        такие как timeout, host, version, disk, resources, upload и fields.
+        Также создается перемен main_url, которая представляет собой основной
+        URL-адрес для всех операций с Yandex.Disk API.
+    Метод encode_path кодирует путь в URL-формат.
+    Метод get_info_url возвращает URL-адрес для получения информации файлах в облаке.
+    Метод get_upload_url возвращает URL-адрес для загрузки файла в облако.
+    Метод get_delete_url возвращает URL-адрес для удаления файла из облака.
+    """
+
     timeout: int = 10
     host: str = "https://cloud-api.yandex.net"
     version: str = "/v1"
@@ -50,6 +63,18 @@ class YandexApiUrl:
 
 
 class YandexDiskClient:
+    """
+    Класс YandexDiskClient представляет собой клиент для работы с Yandex.Disk API.
+    В методе __init__ инициализируются переменные,
+        такие как oauth_token, remote_path, local_path и headers.
+    Метод request_upload_url возвращает URL для загрузки файла в облако.
+    Метод upload загружает файл в облако.
+    Метод reload заменяет файл в облаке.
+    Метод delete удаляет файл из облака.
+    Метод remove_dir удаляет директории из списка файлов.
+    Метод get_info возвращает информацию о файлах в облаке.
+    """
+
     api: YandexApiUrl = YandexApiUrl()
 
     def __init__(self, local_folder: str, remote_folder: str, token: str):

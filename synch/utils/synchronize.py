@@ -8,6 +8,25 @@ from core.log_config import logger
 
 
 class Synchronizer:
+    """
+    Класс Synchronizer представляет собой синхронизатор файлов
+        между локальной папкой и облаком.
+    В методе __init__ инициализируются переменные,
+        такие как local_path, remote_path, cloud_token и delay.
+        Также создается экземпляр класса YandexClient.
+    Метод __get_mtime_iso8601 возвращает время последнего изменения файла
+        в формате ISO 8601.
+    Метод __get_local_files_with_mtime возвращает список словарей,
+        где каждый словарь содержит информацию о файле в локальной папке.
+    Метод __find_name_in_remote_files ищет файл с заданным именем
+        в списке файлов в облаке.
+    Метод __remove_remote_file_by_name удаляет файл с заданным именем
+        из списка файлов в облаке.
+    Метод sync_files синхронизирует файлы между локальной папкой и облаком.
+    Метод stop_sync останавливает синхронизацию.
+    Метод start_sync запускает синхронизацию.
+    """
+
     def __init__(self):
         self.local_path: str = str(config.get("path_local_folder", ""))
         self.remote_path: str = str(config.get("path_cloud_folder", ""))

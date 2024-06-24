@@ -4,6 +4,16 @@ from core.log_config import logger
 
 
 def handle_errors(func):
+    """
+    Функция handle_errors - это декоратор, который обрабатывает исключения
+        HTTPError, Timeout и RequestException.
+        Внутри декоратора создается обертка, которая вызывает функцию func
+        и обрабатывает исключения. Если возникает исключение HTTPError,
+        Timeout или RequestException, возвращается словарь
+        с ключом "status" и значением "Error". В противном случае,
+        функция func вызывается и ее результат возвращается.
+    """
+
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
