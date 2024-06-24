@@ -4,8 +4,10 @@ import sys
 from loguru import logger as loguru_logger
 from pathlib import Path
 
+from config import config
 
-BASE_DIR = Path(__file__).parent.parent
+
+BASE_DIR = Path(__file__).parent.parent.parent
 
 
 class MyLogger:
@@ -45,7 +47,8 @@ class MyLogger:
 
 def get_log_filename():
     now = datetime.datetime.now()
-    dirname = f"{BASE_DIR}/logs"
+    log_path = config.get("path_local_log", "")
+    dirname = f"{BASE_DIR}{log_path}"
 
     if not os.path.isdir(dirname):
         os.mkdir(dirname)

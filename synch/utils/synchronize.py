@@ -95,6 +95,7 @@ class Synchronizer:
         self.running = True
         try:
             while self.running:
+                logger.info("Синхронизация запущена")
                 self.sync_files()
                 time.sleep(self.delay)
 
