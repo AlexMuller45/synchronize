@@ -49,17 +49,26 @@ class Synchronizer:
         return time.strftime("%Y-%m-%dT%H:%M:%S%z", mtime_struct)
 
     def __get_local_files_with_mtime(self) -> list[dict]:
-        list_dir = os.listdir(self.local_path)
-        return [
-            {
-                "name": item,
-                "modified": self.__get_mtime_iso8601(item),
-                "path": os.path.join(self.local_path, item),
-                "type": "file",
-            }
-            for item in list_dir
-            if os.path.isfile(os.path.join(self.local_path, item))
-        ]
+        try:
+            list_dir = os.listdir(self.local_path)
+            return [
+                {
+                    "name": item,
+                    "modified": self.__get_mtime_iso8601(item),
+                    "path": os.path.join(self.local_path, item),
+                    "type": "file",
+                }
+                for item in list_dir
+                if os.path.isfile(os.path.join(self.local_path, item))
+            ]
+
+        except FileNotFoundError as err:
+            logger.error(f"Путь {self.local_path} не найден: {err}")
+
+        except Exception as e:
+            logger.error(f"Ошибка при получении списка файлов: {e}")
+
+        return []
 
     @staticmethod
     def __find_name_in_remote_files(
@@ -67,10 +76,6 @@ class Synchronizer:
         remote_files: list[dict],
     ) -> dict | None:
         return next((item for item in remote_files if item.get("name") == name), None)
-
-    @staticmethod
-    def __remove_remote_file_by_name(name, remote_files) -> list[dict]:
-        return [{**item} for item in remote_files if item.get("name") != name]
 
     def sync_files(self):
 
@@ -81,38 +86,39 @@ class Synchronizer:
         )
 
         remote_files: list[dict] = self.cloud_drive.get_info()
-        logger.info(f"Файлы в облаке: {[item["name"] for item in remote_files]}")
+
+        if remote_files is None:
+            logger.error("данные из облака не получены")
+            return
+
+        logger.info(
+            f"Имеющиеся файлы в облаке: {[item["name"] for item in remote_files]}"
+        )
+
+        remote_files_dict = {file["name"]: file for file in remote_files}
 
         for file in local_files:
-            remote_file: dict | None = self.__find_name_in_remote_files(
-                file["name"],
-                remote_files,
-            )
-            file_name: str = file.get("name") or ""
+            file_name: str = file.get("name", "")
+            if not file_name:
+                continue
+
+            remote_file = remote_files_dict.pop(file_name, None)
+            mtime_local_file = datetime.fromisoformat(file["modified"])
 
             if remote_file:
-                mtime_local_file = datetime.fromisoformat(file["modified"])
                 mtime_remote_file = datetime.fromisoformat(remote_file["modified"])
 
                 if mtime_local_file > mtime_remote_file:
                     logger.info(f"Обновление файла {file_name} в облаке")
                     self.cloud_drive.reload(file_name)
 
-                remote_files = self.__remove_remote_file_by_name(
-                    file_name,
-                    remote_files,
-                )
-
             else:
                 logger.info(f"Загрузка файла {file_name} в облако")
                 self.cloud_drive.upload(file_name)
 
-        if remote_files:
-            for file in remote_files:
-                remote_file_name = file.get("name")
-                if remote_file_name:
-                    logger.info(f"Удаление файла {remote_file_name} из облака")
-                    self.cloud_drive.delete(str(remote_file_name))
+        for remote_file_name in remote_files_dict.keys():
+            logger.info(f"Удаление файла {remote_file_name} из облака")
+            self.cloud_drive.delete(remote_file_name)
 
         logger.info("Синхронизация завершена")
 
