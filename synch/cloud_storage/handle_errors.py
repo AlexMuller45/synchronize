@@ -25,6 +25,6 @@ def handle_errors(func):
             logger.error(f"Ошибка запроса: {req_err}")
         except Exception as err:
             logger.error(f"Ошибка: {err}")
-        return {"status": "Error"}
+        return None
 
     return wrapper
